@@ -3,13 +3,17 @@ function createQuizOverview(){
 	getTemplate(templateUrls.quizOverview).then(function(response) {
     	// The first runs when the promise resolves, with the request.reponse
 		// specified within the resolve() method.
-				
+		
+		// Wir injizieren das Template in Quiz-Wrap
 		var target = document.getElementById("content");
 		target.innerHTML = response;
 		
-		// Item Template ziehen
+		// Item Template ziehen und speichern
 		var item = document.getElementById("quiz-item");
 		var itemHtml = item.innerHTML;
+
+		
+		// Item im Wrap löschen
 		item.parentNode.removeChild(item);
 		console.log(item);
 		

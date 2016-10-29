@@ -9,7 +9,7 @@ function createQuizOverview(){
 		
 		// Item Template ziehen
 		var item = document.getElementById("quiz-item");
-		//document.removeChild(item);
+		item.parentNode.removeChild(item);
 		console.log(item);
 		
 

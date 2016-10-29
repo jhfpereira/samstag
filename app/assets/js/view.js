@@ -40,6 +40,14 @@ function createQuizOverview(){
 	
 	// Injiziere den Content in Quiz Wrap
 	
-	
+	getJsonData(dataUrls.quizOverview).then(function(response) {
+
+		var dataJSON = JSON.parse(response);	   
+		console.log(dataJSON); // this will show the info it in firebug console
+		
+
+	}, function(Error) {
+    	console.log(Error);
+  	});
 	
 }

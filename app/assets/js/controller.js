@@ -1,5 +1,17 @@
+function getTemplateCB(url, callback) {
+  
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) { callback.call(this); }
+	};
+	
+	xhttp.open("GET", url, true);
+	xhttp.send();
 
-function getTemplate(url) {
+}
+
+
+function getTemplateP(url) {
 	
     // Create new promise with the Promise() constructor;
     // This has as its argument a function
@@ -27,5 +39,5 @@ function getTemplate(url) {
       };
       // Send the request
       request.send();
-    });
-  }
+	});
+}

@@ -1,4 +1,8 @@
-header, footer{
+header, footer, section{
 	padding: 20px;
+}
+
+header, footer{
 	background-color: #eee;
 }
+

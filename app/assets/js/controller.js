@@ -17,7 +17,7 @@ function getTemplate(url) {
           resolve(request.response);
         } else {
         // If it fails, reject the promise with a error message
-          reject(Error('Image didn\'t load successfully; error code:' + request.statusText));
+          reject(Error('File didn\'t load successfully; error code:' + request.statusText));
         }
       };
       request.onerror = function() {

@@ -1,6 +1,10 @@
 var model = {};
 model.data = {};
 
+model.data.quizQuestionsData = {};
+model.data.quizQuestionsData.answers = {};
+
+
 /* Aufruf Ajax-Request */
 function get(url, callback) {
   

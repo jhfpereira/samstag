@@ -18,4 +18,5 @@ header, footer{
 
 .answer .button{
 	display: block;
+	width: 100%;
 }

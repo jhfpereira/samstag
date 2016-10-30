@@ -1,7 +1,16 @@
 function createQuizOverview(){
 	
+	// JSON holen und danach Temlate ziehen
+	var quizOverviewData;
+	get(dataUrls.quizOverview, requireTemplate);
+	
 	// Lies das Wrap Templates aus und gib mir den Inhalt
-	var wrapTemplate = getTemplateCB(templateUrls.quizOverview, function() { 
+	function requireTemplate(){
+		model.data.quizOverviewData = JSON.parse(this.responseText);
+		get(templateUrls.quizOverview, renderTemplate);
+	}
+	
+	function renderTemplate() { 
 		var template = this.responseText;
 		
 		// Inhalt in Quiz-warp injizieren	
@@ -13,44 +22,37 @@ function createQuizOverview(){
 
 		// Item im Wrap löschen
 		quizItem.parentNode.removeChild(quizItem);
-		
+	
 		// Durch das QuizOverview JSON iterieren
 		var resultHtml = "";
-		for(var quiz in quizOverviewData){
+		for(var quiz in model.data.quizOverviewData){
 			
 			// Item Template zwischenspeichern
 			resultHtml = quizItem.outerHTML;
-			
-			// Platzhalter ersetzen
-			resultHtml = resultHtml.replace(/{{quizName}}/, quizOverviewData[quiz].name);
-			resultHtml = resultHtml.replace(/{{quizDescription}}/, quizOverviewData[quiz].description);
-			
-			// ID ändern
-			resultHtml.id = quiz;
 
+			// Platzhalter ersetzen
+			resultHtml = resultHtml.replace(/{{quizId}}/, quiz);
+			resultHtml = resultHtml.replace(/{{quizName}}/, model.data.quizOverviewData[quiz].name);
+			resultHtml = resultHtml.replace(/{{quizDescription}}/, model.data.quizOverviewData[quiz].description);
+			
+			// Element erzeugen und mit Event ausstatten
+			var item = document.createElement("div");
+			item.innerHTML = resultHtml;
+			item.firstChild.onclick = function(){ showQuiz(this); };
+			 
 			// HTML in Wrap einfügen
-			document.getElementById("quizzes").innerHTML += resultHtml;
+			document.getElementById("quizzes").appendChild(item.firstChild);
 			
 		}
-		
-	});
-	
-	
-	// Gib mir die URL des Item Templates
-	//var itemUrl = getTemplateUrl(templateUrls.quizOverviewItem);
-	
-	// Lies es aus und gib mir den Inhalt
-	//var itemTemplate = getTemplate(itemUrl);
-	
-	// Injiziere die Items in den Wrap
-	
-	
-	// Injiziere den Content in Quiz Wrap
-	
-	
+
+	}
 	
 }
 
+
+function showQuiz( quiz ){
+	console.log(quiz.id);
+}
 
 /*
 getTemplate(templateUrls.quizOverview).then(function(response) {

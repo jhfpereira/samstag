@@ -38,7 +38,7 @@ function createQuizOverview(){
 			// Element erzeugen und mit Event ausstatten
 			var item = document.createElement("div");
 			item.innerHTML = resultHtml;
-			item.firstChild.onclick = function(){ showQuiz(this); };
+			item.firstChild.onclick = function(){ showQuizStart(this); };
 			 
 			// HTML in Wrap einfügen
 			document.getElementById("quizzes").appendChild(item.firstChild);
@@ -50,8 +50,76 @@ function createQuizOverview(){
 }
 
 
-function showQuiz( quiz ){
-	console.log(quiz.id);
+function showQuizStart( quiz ){
+	
+	// Template Quiz-Start holen
+	get(templateUrls.quizStart, renderTemplate);
+
+	// Quiz-Start mit Inhalt fuellen
+	function renderTemplate() { 
+		var template = this.responseText;
+
+		// Inhalt in Quiz-warp injizieren	
+		var target = document.getElementById("content");
+		target.innerHTML = template;
+
+		
+		// Inhalt in Quiz-Start injizieren	
+		var headline = document.getElementsByTagName("h1")[0];
+		headline.innerHTML = model.data.quizOverviewData[quiz.id].name;
+
+		var headline = document.getElementsByTagName("p")[0];
+		headline.innerHTML = model.data.quizOverviewData[quiz.id].description;
+
+		// Buttons mit Event ausstatten
+		var play = document.getElementById("spielen");
+		play.onclick = function() {startQuiz(quiz); };	
+
+		var back = document.getElementById("zurueck");
+		back.onclick = function() {createQuizOverview(); };	
+		
+	}
+	
+}
+
+function startQuiz( quiz ){
+	setDataUrlsQuiz(quiz.id);
+
+	// JSON holen und danach Temlate ziehen
+	var quizQuestionsData;
+	get(dataUrls.quizQuestions, requireTemplate);
+
+	// Template Quiz-Questions holen
+	function requireTemplate(){
+		model.data.quizQuestionData = JSON.parse(this.responseText);
+		get(templateUrls.quizQuestions, renderTemplate);
+	}
+
+	// Quiz-Questions mit Inhalt fuellen
+	function renderTemplate() { 
+		var template = this.responseText;
+
+		// Inhalt in Quiz-warp injizieren	
+		var target = document.getElementById("content");
+		target.innerHTML = template;
+
+		
+		// Inhalt in Quiz-Start injizieren	
+		var headline = document.getElementsByTagName("h1")[0];
+		headline.innerHTML = model.data.quizOverviewData[quiz.id].name;
+
+		var headline = document.getElementsByTagName("p")[0];
+		headline.innerHTML = model.data.quizQuestionsData["questions1"].question;
+
+		// Buttons mit Event ausstatten
+		/*var play = document.getElementById("spielen");
+		play.onclick = function() {startQuiz(quiz); };	
+
+		var back = document.getElementById("zurueck");
+		back.onclick = function() {createQuizOverview(); };	*/
+		
+	}
+
 }
 
 /*

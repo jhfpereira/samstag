@@ -1,6 +1,7 @@
 var model = {};
 model.data = {};
 
+/* Aufruf Ajax-Request */
 function get(url, callback) {
   
 	var xhttp = new XMLHttpRequest();

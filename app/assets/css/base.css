@@ -20,3 +20,19 @@ header, footer{
 	display: block;
 	width: 100%;
 }
+
+#progress-wrap, #progress-bar{
+	width: 100%;
+	height: 5px;
+	background-color: #aaa;
+}
+
+#progress-bar{
+	background-color: #000;
+	transition: all 5s linear;
+	width: 100%;
+}
+
+#progress-bar.countdown{
+	width: 0;
+}

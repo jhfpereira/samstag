@@ -1,3 +1,41 @@
+/* Data
+################################################################## */
+
+var model = {};
+model.data = {};
+
+model.data.quizQuestionsData = {};
+model.data.quizQuestionsData.answers = {};
+
+
+
+
+
+/* Functions
+################################################################## */
+
+
+
+
+
+/* Aufruf Ajax-Request */
+function get(url, callback) {
+  
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4) { callback.call(this); }
+	};
+
+	xhttp.open("GET", url, true);
+	xhttp.send();
+
+}
+
+
+
+
+
+
 function createQuizOverview(){
 	
 	// JSON holen und danach Temlate ziehen
@@ -50,6 +88,9 @@ function createQuizOverview(){
 }
 
 
+
+
+
 function showQuizStart( quiz ){
 	
 	var data = model.data.quizOverviewData[quiz.id];
@@ -71,7 +112,7 @@ function showQuizStart( quiz ){
 		
 		// Buttons mit Event ausstatten
 		var play = document.getElementById("spielen");
-		play.onclick = function() {initQuiz(quiz); };	
+		play.onclick = function() {initQuiz(quiz.id); };	
 
 		var back = document.getElementById("zurueck");
 		back.onclick = function() {createQuizOverview(); };	
@@ -80,23 +121,45 @@ function showQuizStart( quiz ){
 	
 }
 
-function initQuiz( quiz ){
-	setDataUrlsQuiz(quiz.id);
-	
+
+
+
+function initQuiz( quizId ){
+	setDataUrlsQuiz(quizId);
+
 	// JSON holen und Quiz initialisieren
 	var quizQuestionsData;
 	get(dataUrls.quizQuestions, init);
 	
+	// Wir müssen ja die Zeit messen, darum brauchen wir ein Datum
+	var date = new Date();
+	
 	function init(){
-		model.data.quizQuestionsData.activeQuiz = JSON.parse(this.responseText);
+		model.data.quizQuestionsData.activeQuiz          = JSON.parse(this.responseText);
 		model.data.quizQuestionsData.activeQuestionCount = 1;
-		model.data.quizQuestionsData.activeQuestion = model.data.quizQuestionsData.activeQuiz["question1"];
+		model.data.quizQuestionsData.activeQuizId        = quizId;
+		model.data.quizQuestionsData.activeQuestion      = model.data.quizQuestionsData.activeQuiz["question1"];
+		model.data.quizQuestionsData.startTime           = date.getTime();
+		model.data.quizQuestionsData.duration            = 0;
+		model.data.quizQuestionsData.rightAnswers        = 0;
+		model.data.quizQuestionsData.timeout             = false;
+		
+		// Wie viele Fragen hat das Quiz?
+		var i = 1;
+		var id = "question" + i;
+		while(typeof model.data.quizQuestionsData.activeQuiz[id] === 'object'){
+			i++; id = "question" + i;
+		}
+		model.data.quizQuestionsData.maxQuestions = i - 1;
 		
 		// Quiz starten
-		playQuiz(quiz);
+		playQuiz();
 	}
 	
 }
+
+
+
 
 function playQuiz( ){
 
@@ -132,17 +195,33 @@ function playQuiz( ){
 		
 		var optionD = document.getElementById("option-D");
 		optionD.onclick = function() { checkAnswer("D"); };
+		
+		// Wir haben nur begrenzte Zeit
+		model.data.quizQuestionsData.timeout = setTimeout(function(){ checkAnswer("falsch"); }, base.quizTimeout * 1000);
+		
+		// Progressbar aktivieren
+		setTimeout(function(){ document.getElementById("progress-bar").className += " countdown"; }, 100 );
+
+
+
 	}
 
 }
 
+
+
+
 function checkAnswer( answer ){
+	
+	// Wir müssen den Timeout löschen	
+	clearTimeout(model.data.quizQuestionsData.timeout);
 	
 	var data = model.data.quizQuestionsData;
 	var questionId = "question" + data.activeQuestionCount;
 			
 	// Ist die Antwort richtig?
 	if(answer == data.activeQuestion.answer){
+		data.rightAnswers++;
 		data.answers[questionId] = true;
 	}else{
 		data.answers[questionId] = false;
@@ -153,8 +232,64 @@ function checkAnswer( answer ){
 	questionId = "question" + data.activeQuestionCount;
 	data.activeQuestion = data.activeQuiz[questionId];
 	
-	playQuiz();
+	// Wie lange hat es gedauert?
+	var date = new Date();
+	var jetzt = date.getTime();
+	var dauer = jetzt - data.startTime;
+	data.duration = dauer;
+		
+	// Gibt es noch Fragen?
+	if(data.activeQuestionCount <= data.maxQuestions){
+		
+		playQuiz();	
+	}else{
+		finishQuiz();
+	}
+	
 }
+
+
+
+
+
+function finishQuiz(){
+	
+	var data           = model.data.quizOverviewData[model.data.quizQuestionsData.activeQuizId];
+	var dataActiveQuiz = model.data.quizQuestionsData;
+	
+	// Template Quiz-Start holen
+	get(templateUrls.quizEnd, renderTemplate);
+
+	// Quiz-Start mit Inhalt fuellen
+	function renderTemplate() { 
+		var template = this.responseText;
+		
+		// Die Dauer rechnen wir schön
+		var dauerSchoen = moment.utc(dataActiveQuiz.duration).format("mm:ss");
+		
+		// Plazthalter ersetzen	
+		template = template.replace(/{{quizName}}/, data.name );
+		template = template.replace(/{{quizDescription}}/, data.description );
+		template = template.replace(/{{dauer}}/, dauerSchoen );
+		template = template.replace(/{{anzahlFragen}}/, dataActiveQuiz.maxQuestions );
+		template = template.replace(/{{richtigBeantwortet}}/, dataActiveQuiz.rightAnswers );
+
+		// Inhalt in Quiz-warp injizieren	
+		var target = document.getElementById("content");
+		target.innerHTML = template;
+		
+		// Buttons mit Event ausstatten
+		var play = document.getElementById("spielen");
+		play.onclick = function() { initQuiz(model.data.quizQuestionsData.activeQuizId); };	
+
+		var back = document.getElementById("zurueck");
+		back.onclick = function() { location.href = "quiz-wrap.htm"; };	
+		
+	}
+	
+}
+
+
 
 /*
 getTemplate(templateUrls.quizOverview).then(function(response) {

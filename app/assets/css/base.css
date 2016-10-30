@@ -6,3 +6,16 @@ header, footer{
 	background-color: #eee;
 }
 
+.answer-list{
+	padding: 0;
+	margin: 0;
+}
+
+.answer{
+	display: block;
+	margin-bottom: 10px;
+}
+
+.answer .button{
+	display: block;
+}
